@@ -6,21 +6,27 @@
 
 #include "iDyn2KDL.h"
 
+
+
 bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,std::vector<std::string> link_names,std::vector<std::string> joint_names,int max_links)
 {
     int n_links, i;
     bool use_names;
     n_links = idynChain.getN();
     //In iDyn, the joints are only 1 DOF (not 0, not more)
-    n_joints = idynChain.getN();
+    int n_joints = idynChain.getN();
     
     if(n_links <= 0 ) return false;
     
     if( link_names.size() < n_links || joint_names.size() < n_joints ) {
         use_names = false;
+    } else {
+        use_names = true;
     }
     
+    
     KDL::Frame kdlFrame = KDL::Frame();
+    KDL::Frame kdl_H = KDL::Frame();
     KDL::Joint kdlJoint = KDL::Joint();
     kdlChain = KDL::Chain();
     KDL::Segment kdlSegment = KDL::Segment();
@@ -30,10 +36,15 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
     {
         //forgive him, as he does not know what is doing
         iCub::iKin::iKinLink & link_current = idynChain[i];
-        kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
-        //DEBUG
-        //cout << i;
-        //printMatrix("inertia",idynChain.getInertia(i));
+        //For the first link and the last link, take in account also H0 and HN
+        if ( i == n_links - 1) {
+            idynMatrix2kdlFrame(idynChain.getHN(),kdl_H);
+            kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset())*kdl_H;
+        } else {
+            kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
+        }
+
+        
         bool ret = idynDynamicalParameters2kdlRigidBodyInertia(idynChain.getMass(i),idynChain.getCOM(i).subcol(0,3,3),idynChain.getInertia(i),kdlRigidBodyInertia);        
         if( use_names ) {
             kdlSegment = KDL::Segment(link_names[i],KDL::Joint(joint_names[i],KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
@@ -42,6 +53,14 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
         }
         kdlChain.addSegment(kdlSegment);
     }
+    
+    //Considering the H0 transformation
+    KDL::Chain new_chain;
+    KDL::Frame kdl_H0;
+    idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
+    addBaseTransformation(kdlChain,new_chain,kdl_H0);
+    kdlChain = new_chain;
+    
     return true;
 }
 
@@ -57,12 +76,15 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
 
     if(n_links <= 0 ) return false;
     
-    if( link_names.size() < n_links || joint_names.size() < n_joints ) {
+    if( link_names.size() < kdl_links || joint_names.size() < kdl_joints ) {
         use_names = false;
+    } else {
+        use_names = true;
     }
     
     
     KDL::Frame kdlFrame = KDL::Frame();
+    KDL::Frame kdl_H;
     kdlChain = KDL::Chain();
     KDL::Segment kdlSegment = KDL::Segment();
     KDL::RigidBodyInertia kdlRigidBodyInertia = KDL::RigidBodyInertia();
@@ -75,7 +97,16 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
         if( i != sensor_link ) {
             //forgive him, as he does not know what is doing
             iCub::iKin::iKinLink & link_current = idynChain[i];
-            kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
+            //For the first link and the last link, take in account also H0 and HN
+            if ( i == n_links - 1) {
+                idynMatrix2kdlFrame(idynChain.getHN(),kdl_H);
+                kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset())*kdl_H;
+            } else {
+                kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
+            }
+
+            
+
             bool ret = idynDynamicalParameters2kdlRigidBodyInertia(idynChain.getMass(i),idynChain.getCOM(i).subcol(0,3,3),idynChain.getInertia(i),kdlRigidBodyInertia);
             assert(ret);
             if( use_names ) {
@@ -192,6 +223,13 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
         }
         kdlChain = new_kdlChain;
     }
+    //Considering the H0 transformation
+    KDL::Chain new_chain;
+    KDL::Frame kdl_H0;
+    idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
+    addBaseTransformation(kdlChain,new_chain,kdl_H0);
+    kdlChain = new_chain;
+    
     return true;
 }
 
@@ -293,4 +331,47 @@ yarp::sig::Matrix localSE3inv(const yarp::sig::Matrix &H, unsigned int verbose)
     invH(3,3)=1.0;
 
     return invH;
+}
+
+
+bool addBaseTransformation(const KDL::Chain & old_chain, KDL::Chain & new_chain, KDL::Frame H_new_old)
+{
+    new_chain = KDL::Chain();
+    for(unsigned int i=0;i<old_chain.getNrOfSegments();i++){
+        KDL::Segment segm;
+        old_chain.getSegment(i,segm);
+        //if is not the first segment add normally the segment
+        if( i != 0 ) { 
+            new_chain.addSegment(segm);
+        } else {
+            //otherwise modify the segment before adding it
+            KDL::Segment new_segm;
+            KDL::Joint new_joint, old_joint;
+            old_joint = segm.getJoint();
+            KDL::Joint::JointType new_type;
+            switch(old_joint.getType()) {
+                case KDL::Joint::RotAxis:
+                case KDL::Joint::RotX:
+                case KDL::Joint::RotY:
+                case KDL::Joint::RotZ:
+                    new_type = KDL::Joint::RotAxis;
+                break;
+                case KDL::Joint::TransAxis:
+                case KDL::Joint::TransX:
+                case KDL::Joint::TransY:
+                case KDL::Joint::TransZ:
+                    new_type = KDL::Joint::TransAxis;
+                break; 
+                case KDL::Joint::None:
+                default:
+                    new_type = KDL::Joint::None;
+            }
+            
+            //check !
+            new_joint = KDL::Joint(old_joint.getName(),H_new_old*old_joint.JointOrigin(),H_new_old.M*old_joint.JointOrigin(),new_type);
+            new_segm = KDL::Segment(segm.getName(),new_joint,H_new_old*segm.getFrameToTip(),segm.getInertia());
+            new_chain.addSegment(new_segm);
+        }
+    }
+    return true;
 }

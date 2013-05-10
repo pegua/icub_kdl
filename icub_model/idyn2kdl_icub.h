@@ -7,8 +7,10 @@
 #ifndef IDYN2KDL_ICUB_H 
 #define IDYN2KDL_ICUB_H 
 
+#include <iCub/iDyn/iDyn.h>
 #include <iCub/iDyn/iDynBody.h>
-#include <kdl/tree.h>
+#include <kdl/tree.hpp>
+#include "../iDyn_KDL_conversion/iDyn2KDL.h"
 
 /**
  * Get a KDL::Tree model from a iCub::iDyn::iCubWholeBody object

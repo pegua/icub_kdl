@@ -25,9 +25,6 @@
 #include <kdl/frames_io.hpp>
 #include <kdl/kinfam_io.hpp>
 
-#include "custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.hpp"
-
-
 #include <cassert>
 
 using namespace yarp::math;
@@ -44,7 +41,7 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
                         KDL::Chain & kdlChain,
                         std::vector<std::string> link_names = std::vector<std::string>(0),
                         std::vector<std::string> joint_names = std::vector<std::string>(0),
-                        max_links = 10000);
+                        int max_links = 10000);
 
 /**
  * Convert an iCub::iDyn::iDynChain object together with an iCub::iDynInvSensor to a KDL::Chain object,
@@ -107,6 +104,17 @@ bool idynVector2kdlVector(const yarp::sig::Vector & idynVector, KDL::Vector & kd
 
 void printKDLchain(std::string s,const KDL::Chain & kldChain);
 
+
+/**
+ * Modify a KDL::Chain by transforming the base link reference frame
+ *
+ * @param old_chain the input chain
+ * @param new_chain the output chain
+ * @param H_new_old tranformation from the old base reference frame to the new one ({}^{new}H_old)
+ * @return true if conversion was successful, false otherwise
+ * 
+ */ 
+bool addBaseTransformation(const KDL::Chain & old_chain, KDL::Chain & new_chain, KDL::Frame H_new_old);
 
 /**
 *
