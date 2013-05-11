@@ -55,11 +55,19 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
     }
     
     //Considering the H0 transformation
+    //std::cout << "OLD CHAIN " << std::endl;
+    //std::cout << kdlChain << std::endl;
+    
     KDL::Chain new_chain;
     KDL::Frame kdl_H0;
     idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
+    //std::cout << "KDL_h0 " <<  kdl_H0 << std::endl;
+    
     addBaseTransformation(kdlChain,new_chain,kdl_H0);
     kdlChain = new_chain;
+    
+    //std::cout << "new CHAIN " << std::endl;
+    //std::cout << kdlChain << std::endl;
     
     return true;
 }
@@ -214,6 +222,7 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
             kdlChain.addSegment(kdlSegment);
         }
     }
+    
     if( max_links < kdlChain.getNrOfSegments() ) 
     {
         KDL::Chain new_kdlChain;
@@ -223,6 +232,7 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
         }
         kdlChain = new_kdlChain;
     }
+
     //Considering the H0 transformation
     KDL::Chain new_chain;
     KDL::Frame kdl_H0;
@@ -368,7 +378,8 @@ bool addBaseTransformation(const KDL::Chain & old_chain, KDL::Chain & new_chain,
             }
             
             //check !
-            new_joint = KDL::Joint(old_joint.getName(),H_new_old*old_joint.JointOrigin(),H_new_old.M*old_joint.JointOrigin(),new_type);
+        
+            new_joint = KDL::Joint(old_joint.getName(),H_new_old*old_joint.JointOrigin(),H_new_old.M*old_joint.JointAxis(),new_type);
             new_segm = KDL::Segment(segm.getName(),new_joint,H_new_old*segm.getFrameToTip(),segm.getInertia());
             new_chain.addSegment(new_segm);
         }

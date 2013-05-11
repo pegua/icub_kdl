@@ -5,7 +5,34 @@
  */
 
 #ifndef IDYN_KDL_EMULATION_H
-#defined IDYN_KDL_EMULATION_H
+#define IDYN_KDL_EMULATION_H
+
+#include <iCub/iDyn/iDyn.h>
+#include <yarp/os/all.h>
+#include <yarp/dev/all.h>
+#include <yarp/sig/all.h>
+#include <yarp/math/Math.h>
+#include <yarp/math/api.h>
+
+#include <iCub/ctrl/math.h>
+#include <iCub/ctrl/adaptWinPolyEstimator.h>
+#include <iCub/iDyn/iDyn.h>
+#include <iCub/iDyn/iDynBody.h>
+#include <iCub/skinDynLib/skinContactList.h>
+
+#include <kdl/chain.hpp>
+#include <kdl/frames.hpp>
+#include <kdl/frames_io.hpp>
+#include <kdl/kinfam_io.hpp>
+
+#include "../iDyn_KDL_conversion/iDyn2KDL.h"
+#include "../iDyn_KDL_conversion/KDL2iDyn.h"
+
+#include <cassert>
+
+#include "custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.hpp"
+
+using namespace yarp::math;
 
 
 //for now, for this methods, assuming dw0,w0,ddp0 = 0.0, q,dq,ddq already setted in the chain, and with kinematic information (position) updated based on q

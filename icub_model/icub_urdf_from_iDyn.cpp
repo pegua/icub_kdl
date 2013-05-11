@@ -25,6 +25,29 @@
 
 #define NAME "icub_urdf_from_iDyn"
 
+using namespace urdf;
+
+void printTree(boost::shared_ptr<const Link> link,int level = 0)
+{
+  level+=2;
+  int count = 0;
+  for (std::vector<boost::shared_ptr<Link> >::const_iterator child = link->child_links.begin(); child != link->child_links.end(); child++)
+  {
+    if (*child)
+    {
+      for(int j=0;j<level;j++) std::cout << "  "; //indent
+      std::cout << "child(" << (count++)+1 << "):  " << (*child)->name  << " FrameToTip " << urdf_export_helpers::values2str((*child)->parent_joint->parent_to_joint_origin_transform.position) << std::endl;
+      // first grandchild
+      printTree(*child,level);
+    }
+    else
+    {
+      for(int j=0;j<level;j++) std::cout << " "; //indent
+      std::cout << "root link: " << link->name << " has a null child!" << *child << std::endl;
+    }
+  }
+
+}
 
 
 int main(int argc, char* argv[])
@@ -54,13 +77,16 @@ int main(int argc, char* argv[])
     boost::shared_ptr<urdf::ModelInterface> icub_ptr(new urdf::ModelInterface);
     
     std::cout << "iCub KDL::Tree: " << std::endl;
-    std::cout << icub_kdl;
+    std::cout << icub_kdl << std::endl;
+    
     
     if( ! kdl_export::treeToUrdfModel(icub_kdl,"test_icub",*icub_ptr) ) {
         std::cerr << "Fatal error in KDL - URDF conversion" << std::endl;
         return EXIT_FAILURE;
     }
     
+    boost::shared_ptr<const Link> root_link=icub_ptr->getRoot();
+    printTree(root_link);
     
     TiXmlDocument*  xml_doc =  exportURDF(icub_ptr);
     if( ! xml_doc->SaveFile(argv[1]) ) {

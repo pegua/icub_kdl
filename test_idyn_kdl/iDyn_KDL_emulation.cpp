@@ -4,6 +4,26 @@
  * website: http://www.codyco.eu
  */
 #include "iDyn_KDL_emulation.h" 
+#include <vector>
+#include <iCub/iDyn/iDyn.h>
+#include <yarp/os/all.h>
+#include <yarp/dev/all.h>
+#include <yarp/sig/all.h>
+#include <yarp/math/Math.h>
+#include <yarp/math/api.h>
+
+#include <iCub/ctrl/math.h>
+#include <iCub/ctrl/adaptWinPolyEstimator.h>
+#include <iCub/iDyn/iDyn.h>
+#include <iCub/iDyn/iDynBody.h>
+#include <iCub/skinDynLib/skinContactList.h>
+
+#include <kdl/chain.hpp>
+#include <kdl/frames.hpp>
+#include <kdl/frames_io.hpp>
+#include <kdl/kinfam_io.hpp>
+
+#include <cassert>
 
 yarp::sig::Matrix idynChainGetForces_usingKDL(iCub::iDyn::iDynChain & idynChain,yarp::sig::Vector & ddp0)
 {
@@ -397,7 +417,21 @@ KDL::Wrenches idynChainGet_usingKDL_aux(iCub::iDyn::iDynChain & idynChain, iCub:
     
     KDL::Chain kdlChain;
     
-    idynSensorChain2kdlChain(idynChain,idynSensor,kdlChain);
+    std::vector<std::string> la_joints;
+    la_joints.push_back("left_shoulder_pitch");
+    la_joints.push_back("left_shoulder_roll");
+    la_joints.push_back("left_arm_ft_sensor");
+    la_joints.push_back("left_shoulder_yaw");
+    la_joints.push_back("left_elbow");
+    la_joints.push_back("left_wrist_prosup");
+    la_joints.push_back("left_wrist_pitch");
+    la_joints.push_back("left_wrist_yaw");
+
+
+    
+    idynSensorChain2kdlChain(idynChain,idynSensor,kdlChain,la_joints,la_joints);
+    
+    std::cout << kdlChain << std::endl;
     
     int nj = idynChain.getN();
     

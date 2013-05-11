@@ -57,6 +57,7 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
                               std::vector<std::string> joint_names = std::vector<std::string>(0),
                               int max_links = 10000);
 
+
 //bool idynLink2kdlSegment(const iCub::iDyn::iDynLink & idynLink,KDL::Segment & kdlSegment);
 
 /**

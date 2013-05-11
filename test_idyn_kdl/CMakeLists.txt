@@ -5,8 +5,7 @@
 
 
 # YARP needs CMake 2.6 or greater
-cmake_minimum_required(VERSION 2.6)
-
+cmake_minimum_required(VERSION 2.8)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -14,8 +13,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 # find YARP
 find_package(YARP REQUIRED)
 find_package(ICUB)
-find_package(Orocos-KDL REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(Orocos-KDL REQUIRED)
 
 # add YARP include directories
 include_directories(${YARP_INCLUDE_DIRS} ${ICUB_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
@@ -41,18 +40,18 @@ INCLUDE_DIRECTORIES(${iDyn_INCLUDE_DIRS}
 
 #INSTALL(TARGETS ${PROJECTNAME} DESTINATION bin)
 
-add_executable(force_test_icub_arm force_test_icub_arm.cpp ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
-add_executable(force_test_no_sensor force_test_no_sensor.cpp ../lib/inertia_common.h ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
-add_executable(force_test_3links force_test_3links.cpp ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
-add_executable(force_test_5links force_test_5links.cpp ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
-add_executable(force_test_7links force_test_7links.cpp ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
-add_executable(force_test_execution_time force_test_execution_time.cpp ./chain_conversion.cpp ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+add_executable(force_test_icub_arm force_test_icub_arm.cpp iDyn_KDL_emulation.cpp iDyn_KDL_emulation.h ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h ../iDyn_KDL_conversion/KDL2iDyn.cpp ../iDyn_KDL_conversion/KDL2iDyn.h ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+#add_executable(force_test_no_sensor force_test_no_sensor.cpp ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h  ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+#add_executable(force_test_3links force_test_3links.cpp ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h  ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+#add_executable(force_test_5links force_test_5links.cpp ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h  ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+add_executable(force_test_7links force_test_7links.cpp iDyn_KDL_emulation.cpp iDyn_KDL_emulation.h ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h ../iDyn_KDL_conversion/KDL2iDyn.cpp ../iDyn_KDL_conversion/KDL2iDyn.h ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
+#add_executable(force_test_execution_time force_test_execution_time.cpp ../iDyn_KDL_conversion/iDyn2KDL.cpp ../iDyn_KDL_conversion/iDyn2KDL.h  ./custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.cpp)
 
 
 target_link_libraries(force_test_icub_arm ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
-target_link_libraries(force_test_no_sensor ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
-target_link_libraries(force_test_3links ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
-target_link_libraries(force_test_5links ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
+#target_link_libraries(force_test_no_sensor ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
+#target_link_libraries(force_test_3links ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
+#target_link_libraries(force_test_5links ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
 target_link_libraries(force_test_7links ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
-target_link_libraries(force_test_execution_time ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
+#target_link_libraries(force_test_execution_time ${YARP_LIBRARIES} ${ICUB_LIBRARIES} ${Orocos-KDL_LIBRARIES})
 

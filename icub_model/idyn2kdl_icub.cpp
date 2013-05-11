@@ -11,7 +11,6 @@ T * end(T (&ra)[N]) {
     return ra + N;
 }
 
-
 bool names2links_joints(const std::vector<std::string> names,std::vector<std::string> & names_links,std::vector<std::string> & names_joints)
 {
     names_links = names;
@@ -101,10 +100,9 @@ bool toKDL(const iCub::iDyn::iCubWholeBody & icub_idyn, KDL::Tree & icub_kdl)
     KDL::Frame kdlFrame;
     idynMatrix2kdlFrame(icub_idyn.lowerTorso->HLeft,kdlFrame);
     addBaseTransformation(old_ll,ll,kdlFrame);
-    
-    std::cout << "old_ll \n" << old_ll << std::endl;
-    std::cout << "ll: \n" << ll << std::endl;
+    printKDLchain("old_ll",old_ll);
 
+    printKDLchain("ll",ll);
     status_ok = icub_kdl.addChain(ll,"root_link");
     if(!status_ok) return false;
 

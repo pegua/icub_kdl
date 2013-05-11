@@ -8,7 +8,6 @@
 #include <yarp/os/Time.h>
 
 #include "chain_conversion.h"
-#include "../lib/inertia_common.h"
 
 #include <kdl/chainfksolver.hpp>
 #include "custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.hpp"

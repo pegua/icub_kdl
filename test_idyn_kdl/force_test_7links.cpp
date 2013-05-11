@@ -7,7 +7,10 @@
 #include <yarp/os/all.h>
 #include <yarp/os/Time.h>
 
-#include "chain_conversion.h"
+#include "../iDyn_KDL_conversion/iDyn2KDL.h"
+#include "../iDyn_KDL_conversion/KDL2iDyn.h"
+#include "iDyn_KDL_emulation.h"
+
 
 #include <kdl/chainfksolver.hpp>
 #include "custom_kdl/chainidsolver_recursive_newton_euler_internal_wrenches.hpp"
@@ -267,10 +270,13 @@ int main()
         p_idyn.setCol(l,threeChain.getH(l).subcol(0,3,3));
     }
     KDL::Chain threeChainKDL;
+    
+    std::vector<std::string> dummy;
 
+    
     for(int l=0;l<N;l++) {
         Vector p_kdl;
-        idynChain2kdlChain(*(threeChain.asChain()),threeChainKDL,l+1);
+        idynChain2kdlChain(*(threeChain.asChain()),threeChainKDL,dummy,dummy,l+1);
         KDL::ChainFkSolverPos_recursive posSolver = KDL::ChainFkSolverPos_recursive(threeChainKDL);
         KDL::Frame cartpos;
         KDL::JntArray jpos;
@@ -283,7 +289,7 @@ int main()
         KDL::Chain threeChainKDLsens;
     for(int l=0;l<N+1;l++) {
         Vector p_kdl;
-        idynSensorChain2kdlChain(*(threeChain.asChain()),threeChainSensor,threeChainKDLsens,l+1);
+        idynSensorChain2kdlChain(*(threeChain.asChain()),threeChainSensor,threeChainKDLsens,dummy,dummy,l+1);
         KDL::ChainFkSolverPos_recursive posSolver = KDL::ChainFkSolverPos_recursive(threeChainKDLsens);
         KDL::Frame cartpos;
         KDL::JntArray jpos;
@@ -311,7 +317,6 @@ int main()
     cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~KDL Chain sens~~~~~~~~~~~~~~~~~~~~~~~~~~~~`" << endl << threeChainKDLsens << endl;
     
 
-    //printKDLchain("threeChainKDL",threeChainKDL);
     //printKDLchain("threeChainKDLsens",threeChainKDLsens);
 
     printMatrix("F",F);
