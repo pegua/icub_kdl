@@ -283,7 +283,7 @@ int main()
         jpos.resize(l+1);
         for(int p=0;p<jpos.rows();p++) jpos(p) = jointpositions(p);
         posSolver.JntToCart(jpos,cartpos);
-        kdlVector2idynVector(cartpos.p,p_kdl);
+        to_iDyn(cartpos.p,p_kdl);
         p_kdl_no_sens.setCol(l,p_kdl);
     }
         KDL::Chain threeChainKDLsens;
@@ -304,7 +304,7 @@ int main()
         }
         cout << "l " << l << " nrJoints " << threeChainKDLsens.getNrOfJoints() <<  " nrsegments " << threeChainKDLsens.getNrOfSegments() <<" jpos dim " << jpos.rows() << endl;
         assert(posSolver.JntToCart(jpos,cartpos) >= 0);
-        kdlVector2idynVector(cartpos.p,p_kdl);
+        to_iDyn(cartpos.p,p_kdl);
         p_kdl_sens.setCol(l,p_kdl);
     }
     printMatrix("p_idyn",p_idyn);

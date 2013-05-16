@@ -100,9 +100,7 @@ bool toKDL(const iCub::iDyn::iCubWholeBody & icub_idyn, KDL::Tree & icub_kdl)
     KDL::Frame kdlFrame;
     idynMatrix2kdlFrame(icub_idyn.lowerTorso->HLeft,kdlFrame);
     addBaseTransformation(old_ll,ll,kdlFrame);
-    printKDLchain("old_ll",old_ll);
 
-    printKDLchain("ll",ll);
     status_ok = icub_kdl.addChain(ll,"root_link");
     if(!status_ok) return false;
 

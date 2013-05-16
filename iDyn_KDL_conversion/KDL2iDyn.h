@@ -36,7 +36,7 @@
  * @param idynVector yarp::sig::Vector output
  * @return true if conversion was successful, false otherwise
  */
-bool kdlVector2idynVector(const KDL::Vector & kdlVector,yarp::sig::Vector & idynVector);
+bool to_iDyn(const KDL::Vector & kdlVector,yarp::sig::Vector & idynVector);
 
 /**
  * 

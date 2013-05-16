@@ -6,7 +6,7 @@
 
 #include "KDL2iDyn.h"
 
-bool kdlVector2idynVector(const KDL::Vector & kdlVector,yarp::sig::Vector & idynVector)
+bool to_iDyn(const KDL::Vector & kdlVector,yarp::sig::Vector & idynVector)
 {
     idynVector = yarp::sig::Vector(3);
     idynVector[0] = kdlVector[0];

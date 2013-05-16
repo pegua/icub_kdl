@@ -40,7 +40,7 @@ yarp::sig::Matrix idynChainGetForces_usingKDL(iCub::iDyn::iDynChain & idynChain,
     for(int i=0; i < nj; i++ ) {
         //iCub::iKin::iKinLink = armTorsoDyn.asChain()
         if( i != nj -1 ) {
-            kdlVector2idynVector(f_i[i+1].force,f);
+            to_iDyn(f_i[i+1].force,f);
             f = ((idynChain)[i+1]).getR()*f;
         } else {
             f.zero();
@@ -72,9 +72,9 @@ yarp::sig::Matrix idynChainGetMoments_usingKDL(iCub::iDyn::iDynChain & idynChain
     
     for(int i=0; i < nj; i++ ) {
       if( i != nj -1 ) {  
-        kdlVector2idynVector(f_i[i+1].force,f);
+        to_iDyn(f_i[i+1].force,f);
         f = (idynChain[i+1]).getR()*f;
-        kdlVector2idynVector(f_i[i+1].torque,mu);
+        to_iDyn(f_i[i+1].torque,mu);
         yarp::sig::Vector r_n = ((idynChain)[i+1]).getH().subcol(0,3,3);
         mu = ((idynChain)[i+1]).getR()*mu+cross(r_n,f);
       } else {
@@ -186,7 +186,7 @@ yarp::sig::Matrix idynChainGetForces_usingKDL(iCub::iDyn::iDynChain & idynChain,
             assert(i != ns -1);
             //DEBUG
             //cout << "converting old, f_i " << i+1 << endl;
-            kdlVector2idynVector(f_i[i+1].force,f);
+            to_iDyn(f_i[i+1].force,f);
             f = ((idynChain)[i+1]).getR()*f;
         }
     
@@ -204,7 +204,7 @@ yarp::sig::Matrix idynChainGetForces_usingKDL(iCub::iDyn::iDynChain & idynChain,
             //H_0 = H_{i}^{i-1}*H_{s}^{i}
             yarp::sig::Matrix H_0 = H_sensor_link  * (idynSensor.getH());
             
-            kdlVector2idynVector(f_i[i+1].force,f);
+            to_iDyn(f_i[i+1].force,f);
             f = H_0.submatrix(0,2,0,2)*f;
         }
         if( i > sensor_link ) 
@@ -212,7 +212,7 @@ yarp::sig::Matrix idynChainGetForces_usingKDL(iCub::iDyn::iDynChain & idynChain,
             if( i != ns-1 ) {
                 //DEBUG
                 //cout << "converting new, f_i " << i+1 << endl;
-                kdlVector2idynVector(f_i[i+1].force,f);
+                to_iDyn(f_i[i+1].force,f);
                 //printVector("f",f);
                 f = ((idynChain)[i]).getR()*f;
                 //printVector("f",f);
@@ -259,9 +259,9 @@ yarp::sig::Matrix idynChainGetMoments_usingKDL(iCub::iDyn::iDynChain & idynChain
         mu.zero();
         if( i < sensor_link-1 ) {
             assert(i != ns -1);
-            kdlVector2idynVector(f_i[i+1].force,f);
+            to_iDyn(f_i[i+1].force,f);
             f = ((idynChain)[i+1]).getR()*f;
-            kdlVector2idynVector(f_i[i+1].torque,mu);
+            to_iDyn(f_i[i+1].torque,mu);
             yarp::sig::Vector r_n = ((idynChain)[i+1]).getH().subcol(0,3,3);
             mu = ((idynChain)[i+1]).getR()*mu+cross(r_n,f);
         }
@@ -275,18 +275,18 @@ yarp::sig::Matrix idynChainGetMoments_usingKDL(iCub::iDyn::iDynChain & idynChain
             //link_sensor.setAng(angSensorLink);
             yarp::sig::Matrix H_0 = H_sensor_link  * (idynSensor.getH());
             
-            kdlVector2idynVector(f_i[i+1].force,f);
+            to_iDyn(f_i[i+1].force,f);
             f = H_0.submatrix(0,2,0,2)*f;
-            kdlVector2idynVector(f_i[i+1].torque,mu);
+            to_iDyn(f_i[i+1].torque,mu);
             yarp::sig::Vector r_n = H_0.subcol(0,3,3);
             mu =  H_0.submatrix(0,2,0,2)*mu+cross(r_n,f);
         }
         if( i > sensor_link-1 ) 
         {
             if( i != ns-1 ) {
-                kdlVector2idynVector(f_i[i+1].force,f);
+                to_iDyn(f_i[i+1].force,f);
                 f = ((idynChain)[i]).getR()*f;
-                kdlVector2idynVector(f_i[i+1].torque,mu);
+                to_iDyn(f_i[i+1].torque,mu);
                 yarp::sig::Vector r_n = ((idynChain)[i]).getH().subcol(0,3,3);
                 mu = ((idynChain)[i]).getR()*mu+yarp::math::cross(r_n,f);
             } else {
@@ -302,9 +302,9 @@ yarp::sig::Matrix idynChainGetMoments_usingKDL(iCub::iDyn::iDynChain & idynChain
     
     /*for(int i=0; i < nj; i++ ) {
       if( i != nj -1 ) {  
-        kdlVector2idynVector(f_i[i+1].force,f);
+        to_iDyn(f_i[i+1].force,f);
         f = (idynChain[i+1]).getR()*f;
-        kdlVector2idynVector(f_i[i+1].torque,mu);
+        to_iDyn(f_i[i+1].torque,mu);
         Vector r_n = ((idynChain)[i+1]).getH().subcol(0,3,3);
         mu = ((idynChain)[i+1]).getR()*mu+cross(r_n,f);
       } else {
@@ -333,7 +333,7 @@ yarp::sig::Vector idynSensorGetSensorForce_usingKDL(iCub::iDyn::iDynChain & idyn
     assert(f_i.size() == ns);
     
 
-    kdlVector2idynVector(f_i[sensor_link+1].force,f);
+    to_iDyn(f_i[sensor_link+1].force,f);
     f = H.submatrix(0,2,0,2)*f;
     return f;
 }
@@ -359,10 +359,10 @@ yarp::sig::Vector idynSensorGetSensorMoment_usingKDL(iCub::iDyn::iDynChain & idy
     assert(f_i.size() == ns);
     
 
-    kdlVector2idynVector(f_i[sensor_link+1].force,f);
+    to_iDyn(f_i[sensor_link+1].force,f);
     f = H.submatrix(0,2,0,2)*f;
     
-    kdlVector2idynVector(f_i[sensor_link+1].torque,mu);
+    to_iDyn(f_i[sensor_link+1].torque,mu);
     yarp::sig::Vector r_n = H.subcol(0,3,3);
     mu = H.submatrix(0,2,0,2)*mu+yarp::math::cross(r_n,f);
     return mu;
