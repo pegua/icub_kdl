@@ -35,12 +35,16 @@ using namespace yarp::math;
  * @param kdlChain KDL::Chain object output
  * @param link_names vector of the names of the links
  * @param joint_names vector of the names of the joints
+ * @param final_frame_name if specified, the HN transformation is explicitly added as a virtual fixed link 
+ * @param initial_frame_name if specified, the H0 transformation is explicitly added as a virtual fixed link 
  * @return true if conversion was successful, false otherwise
  */
 bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
                         KDL::Chain & kdlChain,
                         std::vector<std::string> link_names = std::vector<std::string>(0),
                         std::vector<std::string> joint_names = std::vector<std::string>(0),
+                        std::string final_frame_name = "",
+                        std::string initial_frame_name = "",
                         int max_links = 10000);
 
 /**
@@ -48,6 +52,10 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
  * If idynChain has N links, the create kdlChain has N+1 links, with the sensor link divided by the sensor in two semilinks
  * @param idynChain iCub::iDyn::iDynChain object input
  * @param kdlChain KDL::Chain object output
+ * @param link_names vector of the names of the links
+ * @param joint_names vector of the names of the joints
+ * @param final_frame_name if specified, the HN transformation is explicitly added as a virtual fixed link 
+ * @param initial_frame_name if specified, the H0 transformation is explicitly added as a virtual fixed link 
  * @return true if conversion was successful, false otherwise
  */
 bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
@@ -55,6 +63,8 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,
                               KDL::Chain & kdlChain, 
                               std::vector<std::string> link_names = std::vector<std::string>(0),
                               std::vector<std::string> joint_names = std::vector<std::string>(0),
+                              std::string final_frame_name = "",
+                              std::string initial_frame_name = "",
                               int max_links = 10000);
 
 

@@ -8,7 +8,7 @@
 
 
 
-bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,std::vector<std::string> link_names,std::vector<std::string> joint_names,int max_links)
+bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,std::vector<std::string> link_names,std::vector<std::string> joint_names, std::string final_frame_name, std::string initial_frame_name, int max_links)
 {
     int n_links, i;
     bool use_names;
@@ -32,14 +32,26 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
     KDL::Segment kdlSegment = KDL::Segment();
     KDL::RigidBodyInertia kdlRigidBodyInertia = KDL::RigidBodyInertia();
     
+        
+    if( initial_frame_name.length() != 0 ) {
+            idynMatrix2kdlFrame(idynChain.getH0(),kdlFrame);
+            kdlSegment = KDL::Segment(initial_frame_name,KDL::Joint(initial_frame_name+"_joint",KDL::Joint::None),kdlFrame);
+            kdlChain.addSegment(kdlSegment);
+    }
+    
+    
     for(i=0;i<n_links && i < max_links;i++) 
     {
         //forgive him, as he does not know what is doing
         iCub::iKin::iKinLink & link_current = idynChain[i];
         //For the first link and the last link, take in account also H0 and HN
         if ( i == n_links - 1) {
-            idynMatrix2kdlFrame(idynChain.getHN(),kdl_H);
-            kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset())*kdl_H;
+            if( final_frame_name.length() == 0 ) {
+                idynMatrix2kdlFrame(idynChain.getHN(),kdl_H);
+                kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset())*kdl_H;
+            } else {
+                kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
+            }
         } else {
             kdlFrame = kdlFrame.DH(link_current.getA(),link_current.getAlpha(),link_current.getD(),link_current.getOffset());
         }
@@ -64,27 +76,32 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
             }
         }
         kdlChain.addSegment(kdlSegment);
+        
+
+    }
+    
+    //if specified, add a final fake link 
+    if( final_frame_name.length() != 0 ) {
+        idynMatrix2kdlFrame(idynChain.getHN(),kdlFrame);
+        kdlSegment = KDL::Segment(final_frame_name,KDL::Joint(final_frame_name+"_joint",KDL::Joint::None),kdlFrame);
+        kdlChain.addSegment(kdlSegment);
     }
     
     //Considering the H0 transformation
-    //std::cout << "OLD CHAIN " << std::endl;
-    //std::cout << kdlChain << std::endl;
+    if( initial_frame_name.length() == 0 ) {
+        KDL::Chain new_chain;
+        KDL::Frame kdl_H0;
+        idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
+        //std::cout << "KDL_h0 " <<  kdl_H0 << std::endl;
     
-    KDL::Chain new_chain;
-    KDL::Frame kdl_H0;
-    idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
-    //std::cout << "KDL_h0 " <<  kdl_H0 << std::endl;
-    
-    addBaseTransformation(kdlChain,new_chain,kdl_H0);
-    kdlChain = new_chain;
-    
-    //std::cout << "new CHAIN " << std::endl;
-    //std::cout << kdlChain << std::endl;
-    
+        addBaseTransformation(kdlChain,new_chain,kdl_H0);
+        kdlChain = new_chain;
+    }
+        
     return true;
 }
 
-bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDynInvSensor & idynSensor ,KDL::Chain & kdlChain, std::vector<std::string> link_names,std::vector<std::string> joint_names, int max_links)
+bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDynInvSensor & idynSensor ,KDL::Chain & kdlChain, std::vector<std::string> link_names,std::vector<std::string> joint_names, std::string final_frame_name, std::string initial_frame_name, int max_links)
 {
     bool use_names;
     int n_links, i, sensor_link;
@@ -110,6 +127,12 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
     KDL::RigidBodyInertia kdlRigidBodyInertia = KDL::RigidBodyInertia();
     
     int kdl_i = 0;
+    
+    if( initial_frame_name.length() != 0 ) {
+            idynMatrix2kdlFrame(idynChain.getH0(),kdlFrame);
+            kdlSegment = KDL::Segment(initial_frame_name,KDL::Joint(initial_frame_name+"_joint",KDL::Joint::None),kdlFrame);
+            kdlChain.addSegment(kdlSegment);
+    }
     
     for(i=0;i<n_links;i++) 
     {
@@ -242,6 +265,13 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
             }
             kdlChain.addSegment(kdlSegment);
         }
+        
+    }
+    //Final link can be segment
+    if( final_frame_name.length() != 0 ) {
+        idynMatrix2kdlFrame(idynChain.getHN(),kdlFrame);
+        kdlSegment = KDL::Segment(final_frame_name,KDL::Joint(final_frame_name+"_joint",KDL::Joint::None),kdlFrame);
+        kdlChain.addSegment(kdlSegment);
     }
     
     if( max_links < kdlChain.getNrOfSegments() ) 
@@ -255,11 +285,13 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
     }
 
     //Considering the H0 transformation
-    KDL::Chain new_chain;
-    KDL::Frame kdl_H0;
-    idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
-    addBaseTransformation(kdlChain,new_chain,kdl_H0);
-    kdlChain = new_chain;
+    if( initial_frame_name.length() == 0 ) {
+        KDL::Chain new_chain;
+        KDL::Frame kdl_H0;
+        idynMatrix2kdlFrame(idynChain.getH0(),kdl_H0);
+        addBaseTransformation(kdlChain,new_chain,kdl_H0);
+        kdlChain = new_chain;
+    }
     
     return true;
 }

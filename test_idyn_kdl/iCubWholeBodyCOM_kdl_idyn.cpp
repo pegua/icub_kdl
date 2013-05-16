@@ -62,6 +62,7 @@ int main(int argc, char * argv[])
     
     double time_kdl = 0.0;
     double time_idyn = 0.0;
+    double time_kdl_urdf = 0.0;
     double tic = 0.0;
     double toc = 0.0;
     
@@ -70,8 +71,14 @@ int main(int argc, char * argv[])
     bool ret = toKDL(icub_idyn,icub_kdl);
     assert(ret);
     
+    //Dumping URDF file
+    
+    //Creating KDL iCub from URDF
+    
     //Creating solver
     KDL::TreeCOMSolver com_solver(icub_kdl);
+    KDL::TreeCOMSolver com_solver_urdf(icub_kdl_urdf);
+
     
     Random rng;
     rng.seed(yarp::os::Time::now());
@@ -80,8 +87,8 @@ int main(int argc, char * argv[])
     KDL::JntArray q_kdl(N);
     
     for(int trial=0; trial < N_TRIALS; trial++ ) {
-        KDL::Vector COM_kdl;
-        Vector COM_kdl_yarp(3);
+        KDL::Vector COM_kdl, COM_kdl_urdf;
+        Vector COM_kdl_yarp(3), COM_kdl_urf_yarp(3);
 
         for(int i=0;i<N;i++) 
         {
@@ -108,6 +115,13 @@ int main(int argc, char * argv[])
         assert(ret == 0);
         time_kdl += (toc-tic);
         
+        //Compute COM with KDL trought URDF
+        tic = yarp::os::Time::now();
+        int ret = com_solver_urdf.JntToCOM(q_kdl,COM_kdl_urdf);
+        toc = yarp::os::Time::now();
+        assert(ret == 0);
+        time_kdl += (toc-tic)
+        
         //Compare: 
         /*
         cout << "iDyn mass: " << endl;
@@ -119,9 +133,16 @@ int main(int argc, char * argv[])
         cout << "KDL COM: " << endl;
         cout << COM_kdl << endl;
         */
-        bool retb = to_iDyn(COM_kdl,COM_kdl_yarp);
+        bool retb;
+        retb = to_iDyn(COM_kdl,COM_kdl_yarp);
         assert(retb);
+        retb = to_iDyn(COM_kdl_urdf,COM_kdl_urf_yarp);
+        assert(retb);
+        
+        
         assert(EQUALISH(icub_idyn.whole_COM,COM_kdl_yarp));
+        assert(EQUALISH(icub_idyn.whole_COM,COM_kdl_yarp));
+
     }
     
     
