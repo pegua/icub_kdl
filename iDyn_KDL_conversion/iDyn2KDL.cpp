@@ -46,10 +46,22 @@ bool idynChain2kdlChain(iCub::iDyn::iDynChain & idynChain,KDL::Chain & kdlChain,
 
         
         bool ret = idynDynamicalParameters2kdlRigidBodyInertia(idynChain.getMass(i),idynChain.getCOM(i).subcol(0,3,3),idynChain.getInertia(i),kdlRigidBodyInertia);        
-        if( use_names ) {
-            kdlSegment = KDL::Segment(link_names[i],KDL::Joint(joint_names[i],KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
-        } else {   
-            kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+        
+        KDL::Joint jnt_idyn;
+        
+        //\todo: joint can also be blocked at values different from 0.0
+        if( idynChain.isLinkBlocked(i) ) {
+            if( use_names ) {
+                kdlSegment = KDL::Segment(link_names[i],KDL::Joint(joint_names[i],KDL::Joint::None),kdlFrame,kdlRigidBodyInertia);
+            } else {   
+                kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::None),kdlFrame,kdlRigidBodyInertia);
+            }
+        } else {
+            if( use_names ) {
+                kdlSegment = KDL::Segment(link_names[i],KDL::Joint(joint_names[i],KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+            } else {   
+                kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+            }
         }
         kdlChain.addSegment(kdlSegment);
     }
@@ -117,11 +129,20 @@ bool idynSensorChain2kdlChain(iCub::iDyn::iDynChain & idynChain,iCub::iDyn::iDyn
 
             bool ret = idynDynamicalParameters2kdlRigidBodyInertia(idynChain.getMass(i),idynChain.getCOM(i).subcol(0,3,3),idynChain.getInertia(i),kdlRigidBodyInertia);
             assert(ret);
-            if( use_names ) {
-                kdlSegment = KDL::Segment(link_names[kdl_i],KDL::Joint(joint_names[kdl_i],KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
-                kdl_i++;
+            if( idynChain.isLinkBlocked(i) ) {
+                if( use_names ) {
+                    kdlSegment = KDL::Segment(link_names[kdl_i],KDL::Joint(joint_names[kdl_i],KDL::Joint::None),kdlFrame,kdlRigidBodyInertia);
+                    kdl_i++;
+                } else {
+                    kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::None),kdlFrame,kdlRigidBodyInertia);
+                }
             } else {
-                kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+                if( use_names ) {
+                    kdlSegment = KDL::Segment(link_names[kdl_i],KDL::Joint(joint_names[kdl_i],KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+                    kdl_i++;
+                } else {
+                    kdlSegment = KDL::Segment(KDL::Joint(KDL::Joint::RotZ),kdlFrame,kdlRigidBodyInertia);
+                }
             }
             kdlChain.addSegment(kdlSegment);
         } else {
