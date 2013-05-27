@@ -21,4 +21,7 @@
  */
 bool toKDL(const iCub::iDyn::iCubWholeBody & icub_idyn, KDL::Tree & icub_kdl);
 
+bool toKDL_no_limbs(const iCub::iDyn::iCubWholeBody & icub_idyn, KDL::Tree & icub_kdl);
+
+
 #endif

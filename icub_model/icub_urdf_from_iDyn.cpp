@@ -13,7 +13,7 @@
 
 #include <kdl/tree.hpp>
 
-#include <kdl_export/kdl_export.hpp>
+#include <kdl_urdf/kdl_export.hpp>
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>

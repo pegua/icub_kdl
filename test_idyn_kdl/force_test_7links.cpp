@@ -272,11 +272,11 @@ int main()
     KDL::Chain threeChainKDL;
     
     std::vector<std::string> dummy;
-
+    std::string dummy_str = "";
     
     for(int l=0;l<N;l++) {
         Vector p_kdl;
-        idynChain2kdlChain(*(threeChain.asChain()),threeChainKDL,dummy,dummy,l+1);
+        idynChain2kdlChain(*(threeChain.asChain()),threeChainKDL,dummy,dummy,dummy_str,dummy_str,l+1);
         KDL::ChainFkSolverPos_recursive posSolver = KDL::ChainFkSolverPos_recursive(threeChainKDL);
         KDL::Frame cartpos;
         KDL::JntArray jpos;
@@ -289,7 +289,7 @@ int main()
         KDL::Chain threeChainKDLsens;
     for(int l=0;l<N+1;l++) {
         Vector p_kdl;
-        idynSensorChain2kdlChain(*(threeChain.asChain()),threeChainSensor,threeChainKDLsens,dummy,dummy,l+1);
+        idynSensorChain2kdlChain(*(threeChain.asChain()),threeChainSensor,threeChainKDLsens,dummy,dummy,dummy_str,dummy_str,l+1);
         KDL::ChainFkSolverPos_recursive posSolver = KDL::ChainFkSolverPos_recursive(threeChainKDLsens);
         KDL::Frame cartpos;
         KDL::JntArray jpos;
